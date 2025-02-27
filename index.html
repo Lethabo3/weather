@@ -20,9 +20,9 @@
         
         @font-face {
             font-family: 'GeneralSans-Medium';
-            src: url('fonts/GeneralSans-Medium.woff2') format('woff2'),
-                url('fonts/GeneralSans-Medium.woff') format('woff'),
-                url('fonts/GeneralSans-Medium.ttf') format('truetype');
+            src: url('GeneralSans-Medium.woff2') format('woff2'),
+                url('GeneralSans-Medium.woff') format('woff'),
+                url('GeneralSans-Medium.ttf') format('truetype');
             font-weight: 500;
             font-display: swap;
             font-style: normal;
@@ -30,9 +30,9 @@
         
         @font-face {
             font-family: 'GeneralSans-Regular';
-            src: url('fonts/GeneralSans-Regular.woff2') format('woff2'),
-                url('fonts/GeneralSans-Regular.woff') format('woff'),
-                url('fonts/GeneralSans-Regular.ttf') format('truetype');
+            src: url('GeneralSans-Regular.woff2') format('woff2'),
+                url('GeneralSans-Regular.woff') format('woff'),
+                url('GeneralSans-Regular.ttf') format('truetype');
             font-weight: 400;
             font-display: swap;
             font-style: normal;
@@ -126,7 +126,6 @@
             opacity: 0.9;
         }
         
-        /* Skeleton loader styles */
         .skeleton {
             position: relative;
             background-color: var(--skeleton-color);
@@ -159,7 +158,6 @@
             }
         }
         
-        /* Fade in blur animation */
         .fade-in-blur {
             animation: fadeInBlur 0.8s ease-out forwards;
             filter: blur(8px);
@@ -200,31 +198,22 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // DOM Elements
             const loadingIndicator = document.getElementById('loading');
             const errorMessage = document.getElementById('error-message');
             const weatherInfo = document.getElementById('weather-info');
             const retryButton = document.getElementById('retry-button');
-            
-            // Weather display elements
             const cityName = document.getElementById('city-name');
             const temperature = document.getElementById('temperature');
             const conditionText = document.getElementById('condition-text');
-            
-            // API Key
             const API_KEY = '21c3b8e41573423fbea85250252602';
             
-            // Event Listeners
             retryButton.addEventListener('click', function() {
                 getLocation();
             });
             
-            // Start by getting user location
             getLocation();
             
-            // Functions
             function getLocation() {
-                // Reset UI
                 weatherInfo.style.display = 'none';
                 errorMessage.style.display = 'none';
                 retryButton.style.display = 'none';
@@ -232,17 +221,14 @@
                 
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
-                        // Success callback
                         position => {
                             const lat = position.coords.latitude;
                             const lon = position.coords.longitude;
                             fetchWeather(`${lat},${lon}`);
                         },
-                        // Error callback
                         error => {
                             handleLocationError(error);
                         },
-                        // Options
                         { timeout: 10000 }
                     );
                 } else {
@@ -289,14 +275,11 @@
             }
             
             function displayWeather(data) {
-                // Location information
                 cityName.textContent = data.location.name;
                 
-                // Current weather
                 temperature.textContent = `${Math.round(data.current.temp_c)}°`;
                 conditionText.textContent = data.current.condition.text.toLowerCase();
                 
-                // Reset animation classes to allow for re-triggering
                 const animatedElements = document.querySelectorAll('.fade-in-blur');
                 animatedElements.forEach(element => {
                     element.style.animation = 'none';
@@ -304,7 +287,6 @@
                     element.style.animation = null;
                 });
                 
-                // Show the weather info section
                 weatherInfo.style.display = 'block';
             }
             
