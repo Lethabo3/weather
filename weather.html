@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M80,55 C80,44.5 71.5,36 61,36 C58.4,36 55.9,36.5 53.7,37.4 C50.1,31.6 43.5,28 36,28 C25.5,28 17,36.5 17,47 C17,47.3 17,47.7 17,48 C11.5,49.4 7.5,54.3 7.5,60 C7.5,66.9 13.1,72.5 20,72.5 L75,72.5 C81.9,72.5 87.5,66.9 87.5,60 C87.5,57.1 86.1,54.7 84,52.9' fill='white' stroke='%23DDDDDD' stroke-width='1'/></svg>">
+
+    <style>
+        :root {
+            color-scheme: light dark;
+            --background-color: light-dark(#ffffff, #1a1a1a);
+            --text-color: light-dark(#000000, #ffffff);
+            --border-color: light-dark(#e5e7eb, #2e3138);
+            --hover-color: light-dark(#f3f4f6, #2a2d33);
+            --secondary-text: light-dark(#4b5563, #9ba3af);
+            --muted-text: light-dark(#6B7280, #8c96a3);
+            --skeleton-color: #333;
+        }
+        
+        @font-face {
+            font-family: 'GeneralSans-Medium';
+            src: url('fonts/GeneralSans-Medium.woff2') format('woff2'),
+                url('fonts/GeneralSans-Medium.woff') format('woff'),
+                url('fonts/GeneralSans-Medium.ttf') format('truetype');
+            font-weight: 500;
+            font-display: swap;
+            font-style: normal;
+        }
+        
+        @font-face {
+            font-family: 'GeneralSans-Regular';
+            src: url('fonts/GeneralSans-Regular.woff2') format('woff2'),
+                url('fonts/GeneralSans-Regular.woff') format('woff'),
+                url('fonts/GeneralSans-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-display: swap;
+            font-style: normal;
+        }
+        
+        body, html {
+            font-family: 'GeneralSans-Medium';
+            background-color: #000;
+            color: #fff;
+            line-height: 1.4;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .weather-info {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+        
+        .location-line {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 5px;
+        }
+        
+        .location {
+            font-size: 28px;
+            font-family: 'GeneralSans-Medium';
+        }
+        
+        .comma {
+            font-size: 28px;
+            font-family: 'GeneralSans-Medium';
+        }
+        
+        .condition {
+            font-size: 18px;
+            color: #aaa;
+            font-family: 'GeneralSans-Regular';
+            margin-left: 5px;
+        }
+        
+        .temperature {
+            font-size: 72px;
+            font-family: 'GeneralSans-Regular';
+            letter-spacing: -2px;
+        }
+        
+        .loading {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+        
+        .error {
+            padding: 20px;
+            max-width: 420px;
+            margin-bottom: 15px;
+            font-family: 'GeneralSans-Regular';
+            font-size: 18px;
+        }
+        
+        #retry-button {
+            background-color: #fff;
+            color: #000;
+            border: none;
+            padding: 15px 20px;
+            font-family: 'GeneralSans-Medium';
+            font-size: 18px;
+            cursor: pointer;
+            width: 100%;
+            max-width: 420px;
+        }
+        
+        #retry-button:hover {
+            opacity: 0.9;
+        }
+        
+        /* Skeleton loader styles */
+        .skeleton {
+            position: relative;
+            background-color: var(--skeleton-color);
+            border-radius: 3px;
+            animation: pulse 1.5s infinite;
+            overflow: hidden;
+        }
+        
+        .skeleton-location {
+            width: 75%;
+            height: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .skeleton-temperature {
+            width: 30%;
+            height: 72px;
+            margin-top: 5px;
+        }
+        
+        @keyframes pulse {
+            0% {
+                opacity: 0.6;
+            }
+            50% {
+                opacity: 0.3;
+            }
+            100% {
+                opacity: 0.6;
+            }
+        }
+        
+        /* Fade in blur animation */
+        .fade-in-blur {
+            animation: fadeInBlur 0.8s ease-out forwards;
+            filter: blur(8px);
+            opacity: 0;
+        }
+        
+        @keyframes fadeInBlur {
+            0% {
+                filter: blur(8px);
+                opacity: 0;
+            }
+            100% {
+                filter: blur(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loading" class="loading">
+            <div class="skeleton skeleton-location"></div>
+            <div class="skeleton skeleton-temperature"></div>
+        </div>
+        
+        <div id="error-message" class="error" style="display: none;"></div>
+        
+        <div id="weather-info" class="weather-info" style="display: none;">
+            <div class="location-line fade-in-blur">
+                <span id="city-name" class="location"></span><span class="comma">,</span><span id="condition-text" class="condition"></span>
+            </div>
+            
+            <div id="temperature" class="temperature fade-in-blur"></div>
+        </div>
+        
+        <button id="retry-button" style="display: none;">Try again</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const loadingIndicator = document.getElementById('loading');
+            const errorMessage = document.getElementById('error-message');
+            const weatherInfo = document.getElementById('weather-info');
+            const retryButton = document.getElementById('retry-button');
+            
+            // Weather display elements
+            const cityName = document.getElementById('city-name');
+            const temperature = document.getElementById('temperature');
+            const conditionText = document.getElementById('condition-text');
+            
+            // API Key
+            const API_KEY = '21c3b8e41573423fbea85250252602';
+            
+            // Event Listeners
+            retryButton.addEventListener('click', function() {
+                getLocation();
+            });
+            
+            // Start by getting user location
+            getLocation();
+            
+            // Functions
+            function getLocation() {
+                // Reset UI
+                weatherInfo.style.display = 'none';
+                errorMessage.style.display = 'none';
+                retryButton.style.display = 'none';
+                loadingIndicator.style.display = 'block';
+                
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        // Success callback
+                        position => {
+                            const lat = position.coords.latitude;
+                            const lon = position.coords.longitude;
+                            fetchWeather(`${lat},${lon}`);
+                        },
+                        // Error callback
+                        error => {
+                            handleLocationError(error);
+                        },
+                        // Options
+                        { timeout: 10000 }
+                    );
+                } else {
+                    showError("Location services not supported");
+                }
+            }
+            
+            function handleLocationError(error) {
+                let message;
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        message = "Location access denied";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        message = "Location unavailable";
+                        break;
+                    case error.TIMEOUT:
+                        message = "Couldn't get location";
+                        break;
+                    default:
+                        message = "Location error";
+                }
+                showError(message);
+            }
+            
+            async function fetchWeather(location) {
+                try {
+                    const response = await fetch(
+                        `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${encodeURIComponent(location)}&aqi=no`
+                    );
+                    
+                    if (!response.ok) {
+                        throw new Error(`Error: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    displayWeather(data);
+                } catch (err) {
+                    showError('Weather data unavailable');
+                    console.error(err);
+                } finally {
+                    loadingIndicator.style.display = 'none';
+                }
+            }
+            
+            function displayWeather(data) {
+                // Location information
+                cityName.textContent = data.location.name;
+                
+                // Current weather
+                temperature.textContent = `${Math.round(data.current.temp_c)}°`;
+                conditionText.textContent = data.current.condition.text.toLowerCase();
+                
+                // Reset animation classes to allow for re-triggering
+                const animatedElements = document.querySelectorAll('.fade-in-blur');
+                animatedElements.forEach(element => {
+                    element.style.animation = 'none';
+                    element.offsetHeight; // Trigger reflow
+                    element.style.animation = null;
+                });
+                
+                // Show the weather info section
+                weatherInfo.style.display = 'block';
+            }
+            
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                loadingIndicator.style.display = 'none';
+                retryButton.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
