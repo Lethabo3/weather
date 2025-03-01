@@ -4,8 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M80,55 C80,44.5 71.5,36 61,36 C58.4,36 55.9,36.5 53.7,37.4 C50.1,31.6 43.5,28 36,28 C25.5,28 17,36.5 17,47 C17,47.3 17,47.7 17,48 C11.5,49.4 7.5,54.3 7.5,60 C7.5,66.9 13.1,72.5 20,72.5 L75,72.5 C81.9,72.5 87.5,66.9 87.5,60 C87.5,57.1 86.1,54.7 84,52.9' fill='white' stroke='%23DDDDDD' stroke-width='1'/></svg>">
-    <script>
+<!-- Keep original SVG favicon for browsers -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M80,55 C80,44.5 71.5,36 61,36 C58.4,36 55.9,36.5 53.7,37.4 C50.1,31.6 43.5,28 36,28 C25.5,28 17,36.5 17,47 C17,47.3 17,47.7 17,48 C11.5,49.4 7.5,54.3 7.5,60 C7.5,66.9 13.1,72.5 20,72.5 L75,72.5 C81.9,72.5 87.5,66.9 87.5,60 C87.5,57.1 86.1,54.7 84,52.9' fill='white' stroke='%23DDDDDD' stroke-width='1'/></svg>">
+
+<!-- Use cloud.png for iOS home screen icon -->
+<link rel="apple-touch-icon" href="cloud.png">
+
+<!-- iOS specific settings -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Weather">    <script>
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register('/service-worker.js')
             .then(function(registration) {
